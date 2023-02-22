@@ -29,7 +29,7 @@ def add_note(note, midi_file, velocity, track, time, duration):
 
 
 def add_chord(midi_file, track, time, duration, chord):
-    print("chord start"+str(chord))
+    print("chord start" + str(chord))
     for i in range(len(chord)):
         midi_file = add_note(chord[i], midi_file, 120, track, time, duration)
     print("chord end")
@@ -42,7 +42,7 @@ def add_percussion_note(midi_file, track, instrument, time, duration):
 
 
 def add_multiple_percussion(midi_file):
-    for i in range(20):
+    for i in range(32):
         midi_file = add_percussion_note(midi_file, 2, 36, i, 120)
     return midi_file
 
@@ -50,28 +50,41 @@ def add_multiple_percussion(midi_file):
 def add_bar_of_melody(midi_file, chord, rythmic_pattern, track, starting_time):
     for i in range(8):
         time = starting_time + i * 0.5
-        add_note(random.choice(chord[i]) + 12, midi_file, rythmic_pattern[i], 1, time, 0.5)
+        if i==0:
+            add_note(random.choice(chord[0]) + 12, midi_file, rythmic_pattern[i], 1, time, 0.5)
+        else:
+            add_note(random.choice(chord[i]) + 12, midi_file, rythmic_pattern[i], 1, time, 0.5)
 
 
 def create_eight_bar_chord_progression(chords):
-    eight_bar_prograssion = []
-    odd_chords = (0, 2, 4)
-    even_chords = (1, 3, 5)
-    for i in range(8):
-        choice = 0
-        if i % 2 == 0:
-            choice = random.choice(even_chords)
-        else:
-            choice = random.choice(odd_chords)
-        eight_bar_prograssion.append(chords[choice])
-        print(choice)
+    eight_bar_prograssion = [
+        (55, 59, 62, 66, 69),
+        (62, 66, 69, 73, 76),
+        (64, 67, 71, 74, 78),
+        (60, 64, 67, 71, 74),
+        (55, 59, 62, 66, 69),
+        (62, 66, 69, 73, 76),
+        (64, 67, 71, 74, 78),
+        (60, 64, 67, 71, 74)
+    ]
+
     return eight_bar_prograssion
 
 
 def add_eight_bars_of_chords(midi_file, chords):
     for i in range(8):
-        midi_file=add_chord(midi_file,0,i*4,4,chords[i])
+        midi_file = add_chord(midi_file, 0, i * 4, 4, chords[i])
     return midi_file
+
+
+def choose_rythmic_pattern():
+    patterns = [
+        [100, 0, 80, 0, 80, 80, 80, 80],
+        [100, 0, 80, 0, 0, 80, 80, 80],
+        [100, 0, 00, 80, 0, 80, 80, 80],
+        [100, 0, 80, 0, 0, 80, 0, 80]
+    ]
+    return random.choice(patterns)
 
 
 chords = [
@@ -82,7 +95,7 @@ chords = [
     (62, 66, 69),
     (64, 67, 71)
 ]
-rythmic_pattern = [100, 0, 80, 0, 80, 80, 80, 80]
+rythmic_pattern = choose_rythmic_pattern()
 # Create the MIDIFile object with one track
 midi_file = MIDIFile(numTracks=5)
 midi_file = add_track(midi_file, "chords", 0, 100, 48)
@@ -91,9 +104,9 @@ midi_file = add_track(midi_file, "drums", 2, 100, 35)
 
 midi_file = add_multiple_percussion(midi_file)
 
-progression=create_eight_bar_chord_progression(chords)
+progression = create_eight_bar_chord_progression(chords)
 
-midi_file=add_eight_bars_of_chords(midi_file, progression)
+midi_file = add_eight_bars_of_chords(midi_file, progression)
 
 for i in range(8):
     add_bar_of_melody(midi_file, progression, rythmic_pattern, 1, i * 4)
